@@ -1,0 +1,27 @@
+cff-version: 1.2.0
+message: "If you use this code, please cite the preprint below."
+title: "Exploring the Causal Relationship Between Body Mass Index and Kidney Function: Tissue-Partitioned Mendelian Randomization"
+authors:
+  - family-names: Briasouli
+    given-names: Artemis
+  - family-names: Leyden
+    given-names: Genevieve
+  - family-names: Andries
+    given-names: Aristomo
+  - family-names: Hallan
+    given-names: Stein Ivar
+  - family-names: Richardson
+    given-names: Tom G.
+  - family-names: Åsvold
+    given-names: Bjørn Olav
+  - family-names: Rasheed
+    given-names: Humaira
+  - family-names: Brumpton
+    given-names: Ben Michael
+preprint:
+  type: article
+  title: "Exploring the Causal Relationship Between Body Mass Index and Kidney Function: Tissue-Partitioned Mendelian Randomization"
+  repository: medRxiv
+  doi: 10.1101/2025.08.19.25333885
+  year: 2025
+  url: "https://doi.org/10.1101/2025.08.19.25333885"
