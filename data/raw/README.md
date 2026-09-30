@@ -1,4 +1,4 @@
-# `data/raw/` — input data (not tracked by git)
+# `data/raw/` 
 
 The analysis scripts read every input from this folder. These files are **not**
 included in the repository (they are large and access-controlled). Place them
