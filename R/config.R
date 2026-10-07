@@ -13,8 +13,6 @@
 # =============================================================================
 
 ## ---- 0. project root -------------------------------------------------------
-# All paths are relative to the repository root. If you open the .Rproj or set
-# the working directory to the repo root, these resolve automatically.
 if (!exists("PROJECT_ROOT")) PROJECT_ROOT <- getwd()
 
 DIR_RAW       <- file.path(PROJECT_ROOT, "data", "raw")
@@ -25,28 +23,30 @@ for (d in c(DIR_PROCESSED, DIR_RESULTS, DIR_FIGURES))
   dir.create(d, showWarnings = FALSE, recursive = TRUE)
 
 ## ---- 1. analysis settings --------------------------------------------------
-HARMONISE_ACTION <- 1          # TwoSampleMR harmonise_data(action = 1): assume
-                               # forward strand (all summary stats forward-strand)
-SEED             <- 20250101   # for bootstrapped weighted median / mode SEs
-PPA_THRESHOLD    <- 0.8        # tissue assignment: PPA4 > 0.8 (brain / adipose)
+HARMONISE_ACTION <- 1       # action=1: retain palindromic SNPs (forward-strand assumption)
+SEED             <- 20250101
+PPA_THRESHOLD    <- 0.8     # PPA4 > 0.8 for tissue instrument assignment
 
 ## ---- 2. input file names (in data/raw/) ------------------------------------
-# >>> Rename the files on disk to these, OR change the names here to match. <<<
+# Table S7.1 (tissue_instruments) contains ALL instrument information:
+#   - SNP, alleles, eaf, overall beta/se/pval/samplesize
+#   - PPA4_brain, PPA4_adipose (for tissue assignment)
+#   - beta_brain, se_brain, beta_adipose, se_adipose (tissue-specific weighted
+#     betas for MVMR — different from the overall beta column)
+# This single file replaces the need for BRAIN_ADIPOSE_WEIGHTED.xlsx.
 RAW <- list(
-  bmi_instruments   = "bmi.effs.txt",                                  # 915 total-BMI instruments (S7.2)
-  tissue_instruments= "Table_S7_1.csv",                                # brain/adipose SNPs w/ PPA4 (S7.1)
-  go_instruments    = "filtered_metabolic_and_mental.csv",             # GO SNP sets (mental/metabolic)
-  bun               = "metal_bun_meta_all1.TBL.map.annot.gc",          # BUN
-  egfrcys           = "metal_eGFRcys_meta1.TBL.map.annot.gc",          # eGFR cystatin C
-  egfrcrea          = "metal_eGFR_meta_ea1.TBL.map.annot.gc",          # eGFR creatinine
-  egfrdecline       = "CKDGen_eGFR-decline_overall_adjDM.txt",         # annual eGFR decline
-  ckd_wuttke        = "CKD_overall_EA_JW_20180223_nstud23.dbgap.txt",  # CKD (Wuttke et al.)
-  ckd_pattaro       = "pattaro_gwas.txt"                               # CKD (Pattaro et al.)
+  tissue_instruments = "Table_S7_1.xlsx",   # S7.1: all instrument info incl. tissue betas
+  bmi_instruments    = "bmi.effs.txt",       # 915 total-BMI instruments (S7.2)
+  go_instruments     = "filtered_metabolic_and_mental.csv",
+  bun                = "metal_bun_meta_all1.TBL.map.annot.gc",
+  egfrcys            = "metal_eGFRcys_meta1.TBL.map.annot.gc",
+  egfrcrea           = "metal_eGFR_meta_ea1.TBL.map.annot.gc",
+  egfrdecline        = "CKDGen_eGFR-decline_overall_adjDM.txt",
+  ckd_wuttke         = "CKD_overall_EA_JW_20180223_nstud23.dbgap.txt",
+  ckd_pattaro        = "pattaro_gwas.txt"
 )
 
 ## ---- 3. outcome column mappings --------------------------------------------
-# Each outcome: file key + the columns needed by format_data(). `binary=TRUE`
-# means the effect is a log-OR (reported as OR in the tables).
 OUTCOMES <- list(
   BUN         = list(file="bun",        sep="\t", snp="RSID", beta="Effect", se="StdErr",
                      eaf="Freq1", ea="Allele1", oa="Allele2", p="P.value",   n="n",           binary=FALSE),
@@ -65,18 +65,17 @@ OUTCOMES <- list(
 ## ---- 4. helpers ------------------------------------------------------------
 raw_path <- function(key) file.path(DIR_RAW, RAW[[key]])
 
-# never overwrite an output file: name.ext -> name_1.ext, name_2.ext, ...
 safe_path <- function(path) {
   if (!file.exists(path)) return(path)
   d <- dirname(path); ext <- tools::file_ext(path)
   stem <- tools::file_path_sans_ext(basename(path)); i <- 1
   repeat {
-    cand <- file.path(d, if (nzchar(ext)) sprintf("%s_%d.%s", stem, i, ext) else sprintf("%s_%d", stem, i))
+    cand <- file.path(d, if (nzchar(ext)) sprintf("%s_%d.%s", stem, i, ext)
+                         else sprintf("%s_%d", stem, i))
     if (!file.exists(cand)) return(cand); i <- i + 1
   }
 }
 
-# read one outcome GWAS, keep only the instrument SNPs, return TwoSampleMR outcome df
 load_outcome <- function(name, snps) {
   suppressPackageStartupMessages({library(data.table); library(TwoSampleMR)})
   s <- OUTCOMES[[name]]; f <- raw_path(s$file)
@@ -97,5 +96,4 @@ load_outcome <- function(name, snps) {
 }
 
 OUTCOME_BINARY <- vapply(OUTCOMES, function(x) x$binary, logical(1))
-
 message("config.R loaded. PROJECT_ROOT = ", PROJECT_ROOT)
