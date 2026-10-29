@@ -5,7 +5,7 @@ Code to reproduce the Mendelian randomization (MR) analyses in:
 > Briasouli A, Leyden G, Andries A, Hallan SI, Richardson TG, Åsvold BO,
 > Rasheed H, Brumpton BM. **Exploring the Causal Relationship Between Body Mass
 > Index and Kidney Function: Tissue-Partitioned Mendelian Randomization.**
-> medRxiv 2025.08.19.25333885. https://doi.org/10.1101/2025.08.19.25333885
+> https://www.mdpi.com/2073-4425/17/11/1339
 
 The study partitions BMI genetic instruments into brain- and adipose-tissue
 components (and gene-ontology pathway sets) and estimates their effects on six
